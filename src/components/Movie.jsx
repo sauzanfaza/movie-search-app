@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import '../styles/movie.scss';
 
-export default function Movie() {
+export default function Movie({search}) {
     const [moviesCard, setMoviesCard] = useState([]);
 
 useEffect(() => {
@@ -10,13 +10,18 @@ useEffect(() => {
             const response = await fetch("https://api.themoviedb.org/3/movie/popular?api_key=ae0ab3368513e6c521c8d090884d1fe5");
             const data = await response.json();
             setMoviesCard(data.results);
-            console.log("fetched data:", data)//debugging
+            // console.log("fetched data:", data)//debugging
         } catch(error) {
             console.log("Error fetching movies:", error)
         }
     }
     fetchMovie();
     }, []);
+
+    const filterMovies = useMemo(() => {
+        console.log("filtering data...");
+        return moviesCard.filter((movie) => movie.title.toLowerCase().includes(search.toLowerCase()))
+    }, [moviesCard, search]);
 
     const genreMap = {
         28: "Action",
@@ -42,7 +47,7 @@ useEffect(() => {
 
     return(
         <div className="movie-container">
-            {moviesCard.map((movie) => (
+            {filterMovies.map((movie) => (
                 <div key={movie.id} className="movie-card">
                     <div className="poster">
                         <img 
